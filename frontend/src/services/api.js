@@ -28,7 +28,7 @@ export const generateResponse = async (messages, selectedCharacters = []) => {
 
 export const analyzeResponse = async (responseText) => {
     if (!apiKey) throw new Error('API key not set');
-    const prompt = `Identify 2-3 distinct characters or perspectives in the following text and return a JSON array under the key \"characters\". Each character should have a name and short description.\n\n${responseText}`;
+    const prompt = `Identify 2-3 distinct characters or perspectives in the following text and return a JSON array under the key "characters". Each character should have a name and short description.\n\n${responseText}`;
     const payload = {
         model: 'gpt-3.5-turbo',
         messages: [
@@ -47,4 +47,10 @@ export const analyzeResponse = async (responseText) => {
     }
 };
 
-export default { setApiKey, generateResponse, analyzeResponse };
+const api = {
+    setApiKey,
+    generateResponse,
+    analyzeResponse,
+};
+
+export default api;
