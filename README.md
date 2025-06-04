@@ -16,6 +16,11 @@ https://<your-github-username>.github.io/whoom/
 
 Replace `<your-github-username>` with the owner of the repository.
 
+To have the site show up when visiting `https://<your-github-username>.github.io`:
+
+1. In your repository **Settings → Pages**, set the deployment source to **GitHub Actions** so the `deploy-pages.yml` workflow publishes the `frontend` build.
+2. Optionally rename this repository to `<your-github-username>.github.io` or create a new repository with that name and copy the code over. GitHub only serves a user page from a repository named after your username.
+
 ### Running entirely on GitHub Pages
 
 GitHub Pages only hosts static files, so the entire app now runs in the browser.
