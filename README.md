@@ -18,14 +18,8 @@ Replace `<your-github-username>` with the owner of the repository.
 
 ### Running entirely on GitHub Pages
 
-GitHub Pages only hosts static files, so a Python backend cannot run there. To
-use the app without a separate server you can run all language model calls
-directly from the browser. In this mode users provide their own API key and the
-frontend communicates with the LLM provider. See
+GitHub Pages only hosts static files, so the entire app now runs in the browser.
+Users provide their own API key and the React frontend communicates directly
+with the LLM provider. See
 [docs/github_pages_architecture.md](docs/github_pages_architecture.md) for a
 description of this approach.
-
-The previous FastAPI backend remains useful for local development or if you
-prefer to proxy requests through your own service. When using a separate backend
-the frontend can be configured via the `REACT_APP_API_BASE_URL` environment
-variable when building.
