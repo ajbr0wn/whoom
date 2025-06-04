@@ -31,6 +31,7 @@ This document outlines the current vision and feature set for **Character Decomp
    - **AI mode**: the LLM generates text which is then decomposed.
    - **Human‑written mode**: users can supply their own text to be decomposed in the same way.
    - Hybrid flows are possible, similar to how AI Dungeon allows both AI and human turns.
+   - The initial implementation of human-written mode lets you enter the assistant's reply manually and still performs character analysis on that text.
 
 5. **Web Interface**
    - A static React frontend communicates directly with the LLM provider.
