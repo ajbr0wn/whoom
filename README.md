@@ -35,3 +35,10 @@ All branches and messages are automatically saved in your browser's local
 storage. Reloading the page restores the previous conversation. Use the **Reset**
 button in the interface to clear the stored data, **Export** to download a JSON
 copy of your chat history, or **Import** to load a previously saved file.
+
+### Human-Written Mode
+
+Use the radio buttons below the branch controls to switch between **AI mode** and
+**Human-written mode**. In human-written mode your input is treated as the next
+assistant message. The text you supply is analyzed just like an AI response so
+characters can still be selected and branched.

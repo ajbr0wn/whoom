@@ -12,6 +12,7 @@ function App() {
     const [selectedCharacters, setSelectedCharacters] = useState([]);
     const [loading, setLoading] = useState(false);
     const [apiKey, setApiKey] = useState(localStorage.getItem('openai_api_key') || '');
+    const [humanMode, setHumanMode] = useState(false);
 
     const currentBranch = branches.find(b => b.id === currentBranchId) || branches[0];
 
@@ -40,28 +41,36 @@ function App() {
     const handleSendMessage = async () => {
         if (!inputText.trim() || loading || !apiKey) return;
 
-        const newMessage = { role: 'user', content: inputText };
-        const updatedMessages = [...currentBranch.messages, newMessage];
-        updateBranch(currentBranchId, { messages: updatedMessages });
-        setInputText('');
         setLoading(true);
 
         try {
-            // Generate response
-            const response = await generateResponse(updatedMessages, selectedCharacters);
+            if (humanMode) {
+                // Treat the input as an assistant message written by the user
+                const assistantMessage = { role: 'assistant', content: inputText };
+                const newMessages = [...currentBranch.messages, assistantMessage];
+                updateBranch(currentBranchId, { messages: newMessages });
+                const analysis = await analyzeResponse(inputText);
+                updateBranch(currentBranchId, { characters: analysis.characters });
+                setSelectedCharacters([]);
+            } else {
+                const newMessage = { role: 'user', content: inputText };
+                const updatedMessages = [...currentBranch.messages, newMessage];
+                updateBranch(currentBranchId, { messages: updatedMessages });
 
-            const assistantMessage = { role: 'assistant', content: response.response };
-            const newMessages = [...updatedMessages, assistantMessage];
-            updateBranch(currentBranchId, { messages: newMessages });
+                const response = await generateResponse(updatedMessages, selectedCharacters);
 
-            // Analyze response for characters
-            const analysis = await analyzeResponse(response.response);
-            updateBranch(currentBranchId, { characters: analysis.characters });
-            setSelectedCharacters([]); // Reset selection
+                const assistantMessage = { role: 'assistant', content: response.response };
+                const newMessages = [...updatedMessages, assistantMessage];
+                updateBranch(currentBranchId, { messages: newMessages });
 
+                const analysis = await analyzeResponse(response.response);
+                updateBranch(currentBranchId, { characters: analysis.characters });
+                setSelectedCharacters([]);
+            }
         } catch (error) {
             console.error('Error:', error);
         } finally {
+            setInputText('');
             setLoading(false);
         }
     };
@@ -167,6 +176,27 @@ function App() {
                 </label>
             </div>
 
+            <div className="mode-select">
+                <label>
+                    <input
+                        type="radio"
+                        value="ai"
+                        checked={!humanMode}
+                        onChange={() => setHumanMode(false)}
+                    />
+                    AI mode
+                </label>
+                <label>
+                    <input
+                        type="radio"
+                        value="human"
+                        checked={humanMode}
+                        onChange={() => setHumanMode(true)}
+                    />
+                    Human-written mode
+                </label>
+            </div>
+
             {/* Messages */}
             <div className="messages">
                 {currentBranch.messages.map((message, index) => (
@@ -203,11 +233,11 @@ function App() {
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    placeholder="Type your message..."
+                    placeholder={humanMode ? 'Write assistant reply...' : 'Type your message...'}
                     disabled={loading}
                 />
                 <button onClick={handleSendMessage} disabled={loading || !inputText.trim() || !apiKey}>
-                    {loading ? 'Loading...' : 'Send'}
+                    {loading ? 'Loading...' : humanMode ? 'Process' : 'Send'}
                 </button>
             </div>
         </div>

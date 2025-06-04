@@ -105,6 +105,15 @@
   cursor: pointer;
 }
 
+.mode-select {
+  margin-bottom: 20px;
+}
+
+.mode-select label {
+  margin-right: 15px;
+  cursor: pointer;
+}
+
 .import-button {
   margin-right: 10px;
   padding: 5px 10px;
