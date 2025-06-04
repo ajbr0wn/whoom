@@ -20,6 +20,7 @@ This document outlines the current vision and feature set for **Character Decomp
    - Characters from a response are displayed to the user with checkboxes.
    - The user selects one, several, or all characters to continue the dialogue.
    - Each selection spawns a new branch that retains only the context associated with the chosen characters.
+   - Branches appear in a list and you can switch between them to explore different lines of thought.
 
 3. **Dynamic Character System**
    - Characters may merge, split, or disappear as the conversation evolves.

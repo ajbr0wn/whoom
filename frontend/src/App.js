@@ -3,12 +3,16 @@ import { generateResponse, analyzeResponse, setApiKey as storeApiKey } from './s
 import './App.css';
 
 function App() {
-    const [messages, setMessages] = useState([]);
+    const [branches, setBranches] = useState([
+        { id: 'root', parentId: null, messages: [], characters: [] },
+    ]);
+    const [currentBranchId, setCurrentBranchId] = useState('root');
     const [inputText, setInputText] = useState('');
-    const [characters, setCharacters] = useState([]);
     const [selectedCharacters, setSelectedCharacters] = useState([]);
     const [loading, setLoading] = useState(false);
     const [apiKey, setApiKey] = useState(localStorage.getItem('openai_api_key') || '');
+
+    const currentBranch = branches.find(b => b.id === currentBranchId) || branches[0];
 
     useEffect(() => {
         if (apiKey) {
@@ -16,12 +20,16 @@ function App() {
         }
     }, [apiKey]);
 
+    const updateBranch = (id, updates) => {
+        setBranches(prev => prev.map(branch => branch.id === id ? { ...branch, ...updates } : branch));
+    };
+
     const handleSendMessage = async () => {
         if (!inputText.trim() || loading || !apiKey) return;
 
         const newMessage = { role: 'user', content: inputText };
-        const updatedMessages = [...messages, newMessage];
-        setMessages(updatedMessages);
+        const updatedMessages = [...currentBranch.messages, newMessage];
+        updateBranch(currentBranchId, { messages: updatedMessages });
         setInputText('');
         setLoading(true);
 
@@ -30,11 +38,12 @@ function App() {
             const response = await generateResponse(updatedMessages, selectedCharacters);
 
             const assistantMessage = { role: 'assistant', content: response.response };
-            setMessages([...updatedMessages, assistantMessage]);
+            const newMessages = [...updatedMessages, assistantMessage];
+            updateBranch(currentBranchId, { messages: newMessages });
 
             // Analyze response for characters
             const analysis = await analyzeResponse(response.response);
-            setCharacters(analysis.characters);
+            updateBranch(currentBranchId, { characters: analysis.characters });
             setSelectedCharacters([]); // Reset selection
 
         } catch (error) {
@@ -52,6 +61,19 @@ function App() {
         );
     };
 
+    const handleCreateBranch = () => {
+        if (selectedCharacters.length === 0) return;
+        const newId = `branch-${Date.now()}`;
+        const newBranch = {
+            id: newId,
+            parentId: currentBranchId,
+            messages: [...currentBranch.messages],
+            characters: currentBranch.characters,
+        };
+        setBranches(prev => [...prev, newBranch]);
+        setCurrentBranchId(newId);
+    };
+
     return (
         <div className="App">
             <h1>Character Decomposition Chat</h1>
@@ -64,9 +86,22 @@ function App() {
                 />
             </div>
 
+            <div className="branches">
+                <h3>Branches</h3>
+                {branches.map((branch) => (
+                    <button
+                        key={branch.id}
+                        onClick={() => setCurrentBranchId(branch.id)}
+                        disabled={branch.id === currentBranchId}
+                    >
+                        {branch.id}
+                    </button>
+                ))}
+            </div>
+
             {/* Messages */}
             <div className="messages">
-                {messages.map((message, index) => (
+                {currentBranch.messages.map((message, index) => (
                     <div key={index} className={`message ${message.role}`}>
                         <strong>{message.role}:</strong> {message.content}
                     </div>
@@ -74,10 +109,10 @@ function App() {
             </div>
 
             {/* Characters */}
-            {characters.length > 0 && (
+            {currentBranch.characters && currentBranch.characters.length > 0 && (
                 <div className="characters">
                     <h3>Characters in the response:</h3>
-                    {characters.map((character) => (
+                    {currentBranch.characters.map((character) => (
                         <div key={character.name} className="character">
                             <label>
                                 <input
@@ -89,6 +124,7 @@ function App() {
                             </label>
                         </div>
                     ))}
+                    <button onClick={handleCreateBranch} disabled={selectedCharacters.length === 0}>Create Branch</button>
                 </div>
             )}
 
