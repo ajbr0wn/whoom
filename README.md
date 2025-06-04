@@ -28,3 +28,10 @@ Users provide their own API key and the React frontend communicates directly
 with the LLM provider. See
 [docs/github_pages_architecture.md](docs/github_pages_architecture.md) for a
 description of this approach.
+
+### Conversation Persistence
+
+All branches and messages are automatically saved in your browser's local
+storage. Reloading the page restores the previous conversation. Use the **Reset**
+button in the interface to clear the stored data or **Export** to download a JSON
+copy of your chat history.

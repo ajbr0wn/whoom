@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { generateResponse, analyzeResponse, setApiKey as storeApiKey } from './services/api';
+import { loadConversation, saveConversation, clearConversation } from './services/storage';
 import './App.css';
 
 function App() {
@@ -15,10 +16,22 @@ function App() {
     const currentBranch = branches.find(b => b.id === currentBranchId) || branches[0];
 
     useEffect(() => {
+        const { branches: savedBranches, currentBranchId: savedId } = loadConversation();
+        if (savedBranches && savedBranches.length > 0) {
+            setBranches(savedBranches);
+            setCurrentBranchId(savedId || savedBranches[0].id);
+        }
+    }, []);
+
+    useEffect(() => {
         if (apiKey) {
             storeApiKey(apiKey);
         }
     }, [apiKey]);
+
+    useEffect(() => {
+        saveConversation(branches, currentBranchId);
+    }, [branches, currentBranchId]);
 
     const updateBranch = (id, updates) => {
         setBranches(prev => prev.map(branch => branch.id === id ? { ...branch, ...updates } : branch));
@@ -74,6 +87,24 @@ function App() {
         setCurrentBranchId(newId);
     };
 
+    const handleReset = () => {
+        clearConversation();
+        setBranches([{ id: 'root', parentId: null, messages: [], characters: [] }]);
+        setCurrentBranchId('root');
+        setSelectedCharacters([]);
+    };
+
+    const handleExport = () => {
+        const data = JSON.stringify({ branches, currentBranchId }, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'conversation.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="App">
             <h1>Character Decomposition Chat</h1>
@@ -97,6 +128,10 @@ function App() {
                         {branch.id}
                     </button>
                 ))}
+            </div>
+            <div className="controls">
+                <button onClick={handleExport}>Export</button>
+                <button onClick={handleReset}>Reset</button>
             </div>
 
             {/* Messages */}

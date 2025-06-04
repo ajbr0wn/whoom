@@ -77,6 +77,7 @@ User input ─► LLM completion ─► response
    - Allow user-written text decomposition and hybrid turns.
    - Implement advanced character evolution (merging, splitting, new appearances).
    - Provide options to save conversations and character configurations.
+   - Conversations persist in local storage between sessions.
 
 4. **Long Term**
    - Expose the character decomposition as an API for other tools.
