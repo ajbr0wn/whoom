@@ -75,3 +75,20 @@
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+.branches {
+  margin-bottom: 20px;
+}
+
+.branches button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #f5f5f5;
+  cursor: pointer;
+}
+
+.branches button:disabled {
+  background-color: #ddd;
+  cursor: default;
+}
