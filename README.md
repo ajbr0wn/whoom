@@ -33,5 +33,5 @@ description of this approach.
 
 All branches and messages are automatically saved in your browser's local
 storage. Reloading the page restores the previous conversation. Use the **Reset**
-button in the interface to clear the stored data or **Export** to download a JSON
-copy of your chat history.
+button in the interface to clear the stored data, **Export** to download a JSON
+copy of your chat history, or **Import** to load a previously saved file.

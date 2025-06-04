@@ -5,7 +5,7 @@ import './App.css';
 
 function App() {
     const [branches, setBranches] = useState([
-        { id: 'root', parentId: null, messages: [], characters: [] },
+        { id: 'root', name: 'Root', parentId: null, messages: [], characters: [] },
     ]);
     const [currentBranchId, setCurrentBranchId] = useState('root');
     const [inputText, setInputText] = useState('');
@@ -79,6 +79,7 @@ function App() {
         const newId = `branch-${Date.now()}`;
         const newBranch = {
             id: newId,
+            name: newId,
             parentId: currentBranchId,
             messages: [...currentBranch.messages],
             characters: currentBranch.characters,
@@ -89,7 +90,7 @@ function App() {
 
     const handleReset = () => {
         clearConversation();
-        setBranches([{ id: 'root', parentId: null, messages: [], characters: [] }]);
+        setBranches([{ id: 'root', name: 'Root', parentId: null, messages: [], characters: [] }]);
         setCurrentBranchId('root');
         setSelectedCharacters([]);
     };
@@ -103,6 +104,33 @@ function App() {
         a.download = 'conversation.json';
         a.click();
         URL.revokeObjectURL(url);
+    };
+
+    const handleImport = (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.branches && Array.isArray(data.branches)) {
+                    setBranches(data.branches);
+                    setCurrentBranchId(data.currentBranchId || data.branches[0].id);
+                }
+            } catch (err) {
+                console.error('Failed to import conversation', err);
+            }
+        };
+        reader.readAsText(file);
+        // reset value so same file can be uploaded again if needed
+        event.target.value = '';
+    };
+
+    const handleRenameBranch = () => {
+        const newName = prompt('Enter new branch name', currentBranch.name || currentBranch.id);
+        if (newName && newName.trim()) {
+            updateBranch(currentBranchId, { name: newName.trim() });
+        }
     };
 
     return (
@@ -125,13 +153,18 @@ function App() {
                         onClick={() => setCurrentBranchId(branch.id)}
                         disabled={branch.id === currentBranchId}
                     >
-                        {branch.id}
+                        {branch.name || branch.id}
                     </button>
                 ))}
             </div>
             <div className="controls">
                 <button onClick={handleExport}>Export</button>
                 <button onClick={handleReset}>Reset</button>
+                <button onClick={handleRenameBranch}>Rename Branch</button>
+                <label style={{ display: 'inline-block' }}>
+                    <input type="file" accept="application/json" onChange={handleImport} style={{ display: 'none' }} />
+                    <span className="import-button">Import</span>
+                </label>
             </div>
 
             {/* Messages */}
