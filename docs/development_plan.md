@@ -32,20 +32,20 @@ This document outlines the current vision and feature set for **Character Decomp
    - Hybrid flows are possible, similar to how AI Dungeon allows both AI and human turns.
 
 5. **Web Interface**
-   - React frontend communicates with a FastAPI backend.
-   - Backend exposes `/api/generate` and `/api/analyze` endpoints.
+   - A static React frontend communicates directly with the LLM provider.
+   - The user supplies an API key which is stored locally in the browser.
    - Characters and branches are visualized, starting with a simple tree view.
 
 ## Architecture
 
 ```
-User input ─► /api/generate ─► LLM response
+User input ─► LLM completion ─► response
                 │
-                └─► /api/analyze ─► character list
+                └─► LLM analysis ─► character list
 ```
 
-1. **Generation**: The backend sends the conversation history and selected characters to the LLM to produce the next assistant message.
-2. **Analysis**: The same response is analyzed by the LLM (in a separate call) to detect perspectives and produce character metadata.
+1. **Generation**: The frontend sends the conversation history and selected characters directly to the LLM provider to produce the next assistant message.
+2. **Analysis**: The same response is analyzed by the LLM provider (in a separate call) to detect perspectives and produce character metadata.
 3. **Client**: The frontend displays the attributed text and lets the user choose which characters should participate in the next turn.
 
 ## Considered Approaches

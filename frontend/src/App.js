@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { generateResponse, analyzeResponse } from './services/api';
+import React, { useState, useEffect } from 'react';
+import { generateResponse, analyzeResponse, setApiKey as storeApiKey } from './services/api';
 import './App.css';
 
 function App() {
@@ -8,9 +8,16 @@ function App() {
     const [characters, setCharacters] = useState([]);
     const [selectedCharacters, setSelectedCharacters] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [apiKey, setApiKey] = useState(localStorage.getItem('openai_api_key') || '');
+
+    useEffect(() => {
+        if (apiKey) {
+            storeApiKey(apiKey);
+        }
+    }, [apiKey]);
 
     const handleSendMessage = async () => {
-        if (!inputText.trim() || loading) return;
+        if (!inputText.trim() || loading || !apiKey) return;
 
         const newMessage = { role: 'user', content: inputText };
         const updatedMessages = [...messages, newMessage];
@@ -48,6 +55,14 @@ function App() {
     return (
         <div className="App">
             <h1>Character Decomposition Chat</h1>
+            <div className="api-key">
+                <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="OpenAI API key"
+                />
+            </div>
 
             {/* Messages */}
             <div className="messages">
@@ -87,7 +102,7 @@ function App() {
                     placeholder="Type your message..."
                     disabled={loading}
                 />
-                <button onClick={handleSendMessage} disabled={loading || !inputText.trim()}>
+                <button onClick={handleSendMessage} disabled={loading || !inputText.trim() || !apiKey}>
                     {loading ? 'Loading...' : 'Send'}
                 </button>
             </div>
