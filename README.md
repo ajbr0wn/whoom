@@ -24,8 +24,9 @@ To have the site show up when visiting `https://<your-github-username>.github.io
 ### Running entirely on GitHub Pages
 
 GitHub Pages only hosts static files, so the entire app now runs in the browser.
-Users provide their own API key and the React frontend communicates directly
-with the LLM provider. See
+Users choose an LLM provider (OpenAI, Anthropic, Google Gemini or a local Llama
+server) and supply the appropriate API key. The React frontend communicates
+directly with the selected provider. See
 [docs/github_pages_architecture.md](docs/github_pages_architecture.md) for a
 description of this approach.
 
