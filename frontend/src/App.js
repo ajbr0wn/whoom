@@ -62,27 +62,70 @@ function App() {
         setBranches(prev => prev.map(branch => branch.id === id ? { ...branch, ...updates } : branch));
     };
 
+    const describeChange = (change) => {
+        switch (change.type) {
+            case 'new':
+                return `New character "${change.name}" appeared`;
+            case 'disappear':
+                return `"${change.name}" disappeared`;
+            case 'merge':
+                return `${change.from.join(', ')} merged into ${change.into}`;
+            case 'split':
+                return `${change.from} split into ${change.into.join(', ')}`;
+            default:
+                return JSON.stringify(change);
+        }
+    };
+
     const applyCharacterChanges = (id, analysis) => {
         setBranches(prev => prev.map(branch => {
             if (branch.id !== id) return branch;
-            const existing = branch.characters ? branch.characters.map(c => ({ ...c, active: c.active !== false })) : [];
+
+            let chars = branch.characters ? branch.characters.map(c => ({ ...c, active: c.active !== false })) : [];
+
+            const find = name => chars.find(c => c.name === name);
+            const add = name => {
+                const c = { id: generateId(), name, description: '', active: true };
+                chars.push(c);
+                return c;
+            };
+
+            // handle merge/split/new/disappear changes
+            if (analysis.changes && Array.isArray(analysis.changes)) {
+                analysis.changes.forEach(ch => {
+                    if (ch.type === 'merge') {
+                        const into = find(ch.into) || add(ch.into);
+                        into.active = true;
+                        (ch.from || []).forEach(n => {
+                            const c = find(n);
+                            if (c) c.active = false;
+                        });
+                    } else if (ch.type === 'split') {
+                        const src = find(ch.from);
+                        if (src) src.active = false;
+                        (ch.into || []).forEach(n => {
+                            const c = find(n) || add(n);
+                            c.active = true;
+                        });
+                    } else if (ch.type === 'new') {
+                        const c = find(ch.name) || add(ch.name);
+                        c.active = true;
+                    } else if (ch.type === 'disappear') {
+                        const c = find(ch.name);
+                        if (c) c.active = false;
+                    }
+                });
+            }
+
             const activeNames = new Set();
-            const updated = [];
             analysis.characters.forEach(ch => {
-                const match = existing.find(c => c.name === ch.name);
-                if (match) {
-                    updated.push({ ...match, description: ch.description, active: true });
-                } else {
-                    updated.push({ id: generateId(), name: ch.name, description: ch.description, active: true });
-                }
+                const match = find(ch.name) || add(ch.name);
+                Object.assign(match, { description: ch.description, active: true });
                 activeNames.add(ch.name);
             });
-            existing.forEach(c => {
-                if (!activeNames.has(c.name)) {
-                    updated.push({ ...c, active: false });
-                }
-            });
-            return { ...branch, characters: updated, changes: analysis.changes || [] };
+            chars = chars.map(c => activeNames.has(c.name) ? { ...c, active: true } : { ...c, active: false });
+
+            return { ...branch, characters: chars, changes: analysis.changes || [] };
         }));
     };
 
@@ -359,7 +402,7 @@ function App() {
                             <h4>Character Changes:</h4>
                             <ul>
                                 {currentBranch.changes.map((ch, idx) => (
-                                    <li key={idx}>{JSON.stringify(ch)}</li>
+                                    <li key={idx}>{describeChange(ch)}</li>
                                 ))}
                             </ul>
                         </div>
