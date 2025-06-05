@@ -17,7 +17,9 @@ function App() {
     const [inputText, setInputText] = useState('');
     const [selectedCharacters, setSelectedCharacters] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [provider, setProvider] = useState(localStorage.getItem('provider') || 'openai');
+    const [provider, setProvider] = useState(
+        localStorage.getItem('provider') || 'openai'
+    );
     const [apiKey, setApiKey] = useState(
         localStorage.getItem(`${localStorage.getItem('provider') || 'openai'}_api_key`) || ''
     );
@@ -194,11 +196,21 @@ function App() {
                 <header className="app-header">
                     <h1>Character Decomposition Chat</h1>
                     <div className="api-key">
+                        <select
+                            value={provider}
+                            onChange={(e) => setProvider(e.target.value)}
+                        >
+                            <option value="openai">OpenAI</option>
+                            <option value="anthropic">Anthropic</option>
+                            <option value="gemini">Gemini</option>
+                            <option value="llama">Local Llama</option>
+                        </select>
                         <input
                             type="password"
                             value={apiKey}
                             onChange={(e) => setApiKey(e.target.value)}
-                            placeholder="OpenAI API key"
+                            placeholder={`${provider.charAt(0).toUpperCase() + provider.slice(1)} API key`}
+                            disabled={provider === 'llama'}
                         />
                     </div>
                 </header>

@@ -92,9 +92,11 @@ export const analyzeResponse = async (responseText, prevCharacters = []) => {
     }
 };
 
-export default {
+const api = {
     setProvider,
     setApiKey,
     generateResponse,
     analyzeResponse,
 };
+
+export default api;
