@@ -1,5 +1,3 @@
-export const setProvider = () => {};
-export const setApiKey = () => {};
 
 import axios from 'axios';
 
