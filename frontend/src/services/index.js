@@ -31,9 +31,11 @@ export const analyzeResponse = async (responseText, prevCharacters = []) => {
   return llm.analyzeResponse(responseText, prevCharacters);
 };
 
-export default {
+const services = {
   setProvider,
   setApiKey,
   generateResponse,
   analyzeResponse,
 };
+
+export default services;
