@@ -22,6 +22,7 @@ function App() {
     );
     const [apiKey, setApiKey] = useState('');
     const [humanMode, setHumanMode] = useState(false);
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
     const currentBranch = branches.find(b => b.id === currentBranchId) || branches[0];
 
@@ -51,6 +52,11 @@ function App() {
     useEffect(() => {
         saveConversation(branches, currentBranchId);
     }, [branches, currentBranchId]);
+
+    useEffect(() => {
+        document.body.classList.toggle('light', theme === 'light');
+        localStorage.setItem('theme', theme);
+    }, [theme]);
 
     const updateBranch = (id, updates) => {
         setBranches(prev => prev.map(branch => branch.id === id ? { ...branch, ...updates } : branch));
@@ -194,7 +200,7 @@ function App() {
     };
 
     return (
-        <div className="App">
+        <div className={`App ${theme === 'light' ? 'light' : ''}`}>
             <div className="layout">
                 <header className="app-header">
                     <h1>Character Decomposition Chat</h1>
@@ -219,6 +225,9 @@ function App() {
                             } API key`}
                             disabled={provider === 'llama' || provider === 'simulated'}
                         />
+                        <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                        </button>
                     </div>
                 </header>
                 <div className="left-panel">
