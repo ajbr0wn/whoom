@@ -193,6 +193,27 @@ function App() {
         }
     };
 
+    const renderBranchNode = (id) => {
+        const branch = branches.find(b => b.id === id);
+        if (!branch) return null;
+        const children = branches.filter(b => b.parentId === id);
+        return (
+            <li key={id}>
+                <button
+                    onClick={() => setCurrentBranchId(branch.id)}
+                    disabled={branch.id === currentBranchId}
+                >
+                    {branch.name || branch.id}
+                </button>
+                {children.length > 0 && (
+                    <ul>
+                        {children.map(child => renderBranchNode(child.id))}
+                    </ul>
+                )}
+            </li>
+        );
+    };
+
     return (
         <div className="App">
             <div className="layout">
@@ -243,7 +264,12 @@ function App() {
                             <span className="import-button">Import</span>
                         </label>
                     </div>
-                    <div className="future-placeholder">Branch tree placeholder</div>
+                    <div className="branch-tree">
+                        <h3>Branch Tree</h3>
+                        <ul>
+                            {renderBranchNode('root')}
+                        </ul>
+                    </div>
                 </div>
 
                 <main className="main-panel">

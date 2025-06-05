@@ -1,6 +1,6 @@
 # Character Decomposition Chat
 
-This repository contains an experimental chat application that decomposes large language model (LLM) responses into distinct "characters" representing different perspectives. Users can select which characters to continue conversing with, creating branching conversations. Branches are listed in the interface so you can switch between them and explore multiple lines of thought.
+This repository contains an experimental chat application that decomposes large language model (LLM) responses into distinct "characters" representing different perspectives. Users can select which characters to continue conversing with, creating branching conversations. Branches are listed in the interface so you can switch between them and explore multiple lines of thought. A small tree view in the sidebar visualizes how branches relate to each other.
 
 Development documentation can be found in [docs/development_plan.md](docs/development_plan.md).
 
