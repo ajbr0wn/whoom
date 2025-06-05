@@ -56,3 +56,4 @@ During early development you may not want to contact a real language model. The
 
 `App.js` currently imports the simulated API. Swap the import to
 `llmApi.js` when you're ready to connect to real LLMs.
+\nA small Node script `simulate.mjs` demonstrates this mock workflow on the command line. Run `node simulate.mjs` and enter a message to receive a fake response and listed characters.
