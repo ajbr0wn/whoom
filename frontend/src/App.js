@@ -177,112 +177,125 @@ function App() {
 
     return (
         <div className="App">
-            <h1>Character Decomposition Chat</h1>
-            <div className="api-key">
-                <input
-                    type="password"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    placeholder="OpenAI API key"
-                />
-            </div>
-
-            <div className="branches">
-                <h3>Branches</h3>
-                {branches.map((branch) => (
-                    <button
-                        key={branch.id}
-                        onClick={() => setCurrentBranchId(branch.id)}
-                        disabled={branch.id === currentBranchId}
-                    >
-                        {branch.name || branch.id}
-                    </button>
-                ))}
-            </div>
-            <div className="controls">
-                <button onClick={handleExport}>Export</button>
-                <button onClick={handleReset}>Reset</button>
-                <button onClick={handleRenameBranch}>Rename Branch</button>
-                <label style={{ display: 'inline-block' }}>
-                    <input type="file" accept="application/json" onChange={handleImport} style={{ display: 'none' }} />
-                    <span className="import-button">Import</span>
-                </label>
-            </div>
-
-            <div className="mode-select">
-                <label>
-                    <input
-                        type="radio"
-                        value="ai"
-                        checked={!humanMode}
-                        onChange={() => setHumanMode(false)}
-                    />
-                    AI mode
-                </label>
-                <label>
-                    <input
-                        type="radio"
-                        value="human"
-                        checked={humanMode}
-                        onChange={() => setHumanMode(true)}
-                    />
-                    Human-written mode
-                </label>
-            </div>
-
-            {/* Messages */}
-            <div className="messages">
-                {currentBranch.messages.map((message, index) => (
-                    <div key={index} className={`message ${message.role}`}>
-                        <strong>{message.role}:</strong> {message.content}
+            <div className="layout">
+                <header className="app-header">
+                    <h1>Character Decomposition Chat</h1>
+                    <div className="api-key">
+                        <input
+                            type="password"
+                            value={apiKey}
+                            onChange={(e) => setApiKey(e.target.value)}
+                            placeholder="OpenAI API key"
+                        />
                     </div>
-                ))}
-            </div>
+                </header>
 
-            {/* Characters */}
-            {currentBranch.characters && currentBranch.characters.length > 0 && (
-                <div className="characters">
-                    <h3>Characters in the response:</h3>
-                    {currentBranch.characters.filter(c => c.active).map((character) => (
-                        <div key={character.id} className="character">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedCharacters.includes(character.name)}
-                                    onChange={() => handleCharacterToggle(character.name)}
-                                />
-                                <strong>{character.name}</strong>: {character.description}
-                            </label>
-                        </div>
-                    ))}
-                    <button onClick={handleCreateBranch} disabled={selectedCharacters.length === 0}>Create Branch</button>
-                </div>
-            )}
-
-            {currentBranch.changes && currentBranch.changes.length > 0 && (
-                <div className="changes">
-                    <h4>Character Changes:</h4>
-                    <ul>
-                        {currentBranch.changes.map((ch, idx) => (
-                            <li key={idx}>{JSON.stringify(ch)}</li>
+                <div className="left-panel">
+                    <div className="branches">
+                        <h3>Branches</h3>
+                        {branches.map((branch) => (
+                            <button
+                                key={branch.id}
+                                onClick={() => setCurrentBranchId(branch.id)}
+                                disabled={branch.id === currentBranchId}
+                            >
+                                {branch.name || branch.id}
+                            </button>
                         ))}
-                    </ul>
+                    </div>
+                    <div className="controls">
+                        <button onClick={handleExport}>Export</button>
+                        <button onClick={handleReset}>Reset</button>
+                        <button onClick={handleRenameBranch}>Rename Branch</button>
+                        <label style={{ display: 'inline-block' }}>
+                            <input type="file" accept="application/json" onChange={handleImport} style={{ display: 'none' }} />
+                            <span className="import-button">Import</span>
+                        </label>
+                    </div>
+                    <div className="future-placeholder">Branch tree placeholder</div>
                 </div>
-            )}
 
-            {/* Input */}
-            <div className="input-area">
-                <input
-                    type="text"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    placeholder={humanMode ? 'Write assistant reply...' : 'Type your message...'}
-                    disabled={loading}
-                />
-                <button onClick={handleSendMessage} disabled={loading || !inputText.trim() || !apiKey}>
-                    {loading ? 'Loading...' : humanMode ? 'Process' : 'Send'}
-                </button>
+                <main className="main-panel">
+                    <div className="mode-select">
+                        <label>
+                            <input
+                                type="radio"
+                                value="ai"
+                                checked={!humanMode}
+                                onChange={() => setHumanMode(false)}
+                            />
+                            AI mode
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                value="human"
+                                checked={humanMode}
+                                onChange={() => setHumanMode(true)}
+                            />
+                            Human-written mode
+                        </label>
+                    </div>
+
+                    <div className="messages">
+                        {currentBranch.messages.map((message, index) => (
+                            <div key={index} className={`message ${message.role}`}>
+                                <strong>{message.role}:</strong> {message.content}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="input-area">
+                        <input
+                            type="text"
+                            value={inputText}
+                            onChange={(e) => setInputText(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                            placeholder={humanMode ? 'Write assistant reply...' : 'Type your message...'}
+                            disabled={loading}
+                        />
+                        <button onClick={handleSendMessage} disabled={loading || !inputText.trim() || !apiKey}>
+                            {loading ? 'Loading...' : humanMode ? 'Process' : 'Send'}
+                        </button>
+                    </div>
+                </main>
+
+                <div className="right-panel">
+                    {currentBranch.characters && currentBranch.characters.length > 0 && (
+                        <div className="characters">
+                            <h3>Characters</h3>
+                            {currentBranch.characters.filter(c => c.active).map((character) => (
+                                <div key={character.id} className="character">
+                                    <div className="character-avatar">{character.name.charAt(0)}</div>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCharacters.includes(character.name)}
+                                            onChange={() => handleCharacterToggle(character.name)}
+                                        />
+                                        <strong>{character.name}</strong>: {character.description}
+                                    </label>
+                                </div>
+                            ))}
+                            <button onClick={handleCreateBranch} disabled={selectedCharacters.length === 0}>Create Branch</button>
+                        </div>
+                    )}
+
+                    {currentBranch.changes && currentBranch.changes.length > 0 && (
+                        <div className="changes">
+                            <h4>Character Changes:</h4>
+                            <ul>
+                                {currentBranch.changes.map((ch, idx) => (
+                                    <li key={idx}>{JSON.stringify(ch)}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+
+                <footer className="app-footer">
+                    <div className="future-placeholder">Additional controls coming soon</div>
+                </footer>
             </div>
         </div>
     );
