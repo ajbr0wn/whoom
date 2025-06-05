@@ -1,14 +1,11 @@
-export const setProvider = () => {};
-export const setApiKey = () => {};
-
 import axios from 'axios';
 
 let provider = localStorage.getItem('provider') || 'openai';
 const apiKeys = {
-    openai: '',
-    anthropic: '',
-    gemini: '',
-    llama: '',
+    openai: localStorage.getItem('openai_api_key') || '',
+    anthropic: localStorage.getItem('anthropic_api_key') || '',
+    gemini: localStorage.getItem('gemini_api_key') || '',
+    llama: localStorage.getItem('llama_api_key') || '',
 };
 
 export const setProvider = (p) => {
@@ -18,6 +15,7 @@ export const setProvider = (p) => {
 
 export const setApiKey = (key, p = provider) => {
     apiKeys[p] = key;
+    localStorage.setItem(`${p}_api_key`, key);
 };
 
 const callLLM = async (messages) => {
@@ -72,23 +70,33 @@ const callLLM = async (messages) => {
 };
 
 export const generateResponse = async (messages) => {
-    const last = messages[messages.length - 1];
-    return { response: `[simulated] ${last.content}`, status: 'success' };
+    const content = await callLLM(messages);
+    return { response: content, status: 'success' };
 };
 
 export const analyzeResponse = async (responseText, prevCharacters = []) => {
-    return {
-        characters: [
-            { name: 'Reasoner', description: 'Walks through a line of reasoning.' },
-            { name: 'Skeptic', description: 'Questions assumptions.' },
-        ],
-        changes: [],
-    };
+    const prevList = JSON.stringify(
+        prevCharacters.map((c) => ({ name: c.name, description: c.description }))
+    );
+    const prompt = `Identify distinct characters or perspectives in the following text. Return a JSON object with a "characters" array listing the active characters (each with name and short description). Also include a "changes" array describing how characters evolved compared to this previous list: ${prevList}. Use change objects like {"type":"new","name":"X"}, {"type":"disappear","name":"X"}, {"type":"merge","into":"X","from":["Y","Z"]}, or {"type":"split","from":"X","into":["Y","Z"]}.\n\n${responseText}`;
+    const analysisMessages = [
+        { role: 'system', content: 'You analyze text and extract characters.' },
+        { role: 'user', content: prompt },
+    ];
+    try {
+        const content = await callLLM(analysisMessages);
+        const data = JSON.parse(content);
+        return data;
+    } catch {
+        return { characters: [] };
+    }
 };
 
-export default {
+const api = {
     setProvider,
     setApiKey,
     generateResponse,
     analyzeResponse,
 };
+
+export default api;
