@@ -43,3 +43,16 @@ Use the radio buttons below the branch controls to switch between **AI mode** an
 **Human-written mode**. In human-written mode your input is treated as the next
 assistant message. The text you supply is analyzed just like an AI response so
 characters can still be selected and branched.
+
+### Simulated LLM Workflow
+
+During early development you may not want to contact a real language model. The
+`frontend/src/services` folder now contains two API layers:
+
+* `api.js` – returns simple simulated responses so you can test the interface
+  without any network calls.
+* `llmApi.js` – contains the actual provider logic for OpenAI, Anthropic,
+  Gemini and local Llama.
+
+`App.js` currently imports the simulated API. Swap the import to
+`llmApi.js` when you're ready to connect to real LLMs.
