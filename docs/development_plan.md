@@ -35,7 +35,7 @@ This document outlines the current vision and feature set for **Character Decomp
 
 5. **Web Interface**
    - A static React frontend communicates directly with the LLM provider.
-   - The user supplies an API key which is stored locally in the browser.
+    - The user supplies an API key which is kept only in memory for the session.
    - Characters and branches are visualized, starting with a simple tree view.
 
 ## Architecture

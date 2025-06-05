@@ -2,10 +2,10 @@ import axios from 'axios';
 
 let provider = localStorage.getItem('provider') || 'openai';
 const apiKeys = {
-    openai: localStorage.getItem('openai_api_key') || '',
-    anthropic: localStorage.getItem('anthropic_api_key') || '',
-    gemini: localStorage.getItem('gemini_api_key') || '',
-    llama: localStorage.getItem('llama_api_key') || '',
+    openai: '',
+    anthropic: '',
+    gemini: '',
+    llama: '',
 };
 
 export const setProvider = (p) => {
@@ -15,7 +15,6 @@ export const setProvider = (p) => {
 
 export const setApiKey = (key, p = provider) => {
     apiKeys[p] = key;
-    localStorage.setItem(`${p}_api_key`, key);
 };
 
 const callLLM = async (messages) => {
