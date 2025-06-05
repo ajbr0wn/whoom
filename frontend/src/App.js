@@ -20,9 +20,7 @@ function App() {
     const [provider, setProvider] = useState(
         localStorage.getItem('provider') || 'openai'
     );
-    const [apiKey, setApiKey] = useState(
-        localStorage.getItem(`${localStorage.getItem('provider') || 'openai'}_api_key`) || ''
-    );
+    const [apiKey, setApiKey] = useState('');
     const [humanMode, setHumanMode] = useState(false);
 
     const currentBranch = branches.find(b => b.id === currentBranchId) || branches[0];
@@ -41,7 +39,7 @@ function App() {
 
     useEffect(() => {
         storeProvider(provider);
-        setApiKey(localStorage.getItem(`${provider}_api_key`) || '');
+        setApiKey('');
     }, [provider]);
 
     useEffect(() => {
