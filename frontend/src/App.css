@@ -154,3 +154,18 @@
   margin-top: 20px;
   color: #666;
 }
+
+.branch-tree,
+.branch-tree ul {
+  list-style: none;
+  padding-left: 15px;
+  margin: 5px 0;
+}
+
+.branch-tree button {
+  background-color: #111;
+  border: 1px solid #333;
+  color: #b6ffb6;
+  cursor: pointer;
+  margin-bottom: 3px;
+}

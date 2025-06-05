@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import BranchTree from './components/BranchTree';
 import {
     generateResponse,
     analyzeResponse,
@@ -243,7 +244,11 @@ function App() {
                             <span className="import-button">Import</span>
                         </label>
                     </div>
-                    <div className="future-placeholder">Branch tree placeholder</div>
+                    <BranchTree
+                        branches={branches}
+                        currentBranchId={currentBranchId}
+                        onSelect={setCurrentBranchId}
+                    />
                 </div>
 
                 <main className="main-panel">
