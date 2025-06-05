@@ -26,9 +26,10 @@ export const generateResponse = async (messages, selectedCharacters = []) => {
     return { response: response.data.choices[0].message.content, status: 'success' };
 };
 
-export const analyzeResponse = async (responseText) => {
+export const analyzeResponse = async (responseText, prevCharacters = []) => {
     if (!apiKey) throw new Error('API key not set');
-    const prompt = `Identify 2-3 distinct characters or perspectives in the following text and return a JSON array under the key "characters". Each character should have a name and short description.\n\n${responseText}`;
+    const prevList = JSON.stringify(prevCharacters.map(c => ({ name: c.name, description: c.description })));
+    const prompt = `Identify distinct characters or perspectives in the following text. Return a JSON object with a "characters" array listing the active characters (each with name and short description). Also include a "changes" array describing how characters evolved compared to this previous list: ${prevList}. Use change objects like {"type":"new","name":"X"}, {"type":"disappear","name":"X"}, {"type":"merge","into":"X","from":["Y","Z"]}, or {"type":"split","from":"X","into":["Y","Z"]}.\n\n${responseText}`;
     const payload = {
         model: 'gpt-3.5-turbo',
         messages: [

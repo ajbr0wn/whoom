@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateResponse, analyzeResponse, setApiKey as storeApiKey } from './services/api';
 import { loadConversation, saveConversation, clearConversation } from './services/storage';
+import { generateId } from './utils/id';
 import './App.css';
 
 function App() {
@@ -19,7 +20,11 @@ function App() {
     useEffect(() => {
         const { branches: savedBranches, currentBranchId: savedId } = loadConversation();
         if (savedBranches && savedBranches.length > 0) {
-            setBranches(savedBranches);
+            const fixed = savedBranches.map(b => ({
+                ...b,
+                characters: (b.characters || []).map(c => ({ ...c, active: c.active !== false, id: c.id || generateId() })),
+            }));
+            setBranches(fixed);
             setCurrentBranchId(savedId || savedBranches[0].id);
         }
     }, []);
@@ -38,6 +43,30 @@ function App() {
         setBranches(prev => prev.map(branch => branch.id === id ? { ...branch, ...updates } : branch));
     };
 
+    const applyCharacterChanges = (id, analysis) => {
+        setBranches(prev => prev.map(branch => {
+            if (branch.id !== id) return branch;
+            const existing = branch.characters ? branch.characters.map(c => ({ ...c, active: c.active !== false })) : [];
+            const activeNames = new Set();
+            const updated = [];
+            analysis.characters.forEach(ch => {
+                const match = existing.find(c => c.name === ch.name);
+                if (match) {
+                    updated.push({ ...match, description: ch.description, active: true });
+                } else {
+                    updated.push({ id: generateId(), name: ch.name, description: ch.description, active: true });
+                }
+                activeNames.add(ch.name);
+            });
+            existing.forEach(c => {
+                if (!activeNames.has(c.name)) {
+                    updated.push({ ...c, active: false });
+                }
+            });
+            return { ...branch, characters: updated, changes: analysis.changes || [] };
+        }));
+    };
+
     const handleSendMessage = async () => {
         if (!inputText.trim() || loading || !apiKey) return;
 
@@ -49,8 +78,8 @@ function App() {
                 const assistantMessage = { role: 'assistant', content: inputText };
                 const newMessages = [...currentBranch.messages, assistantMessage];
                 updateBranch(currentBranchId, { messages: newMessages });
-                const analysis = await analyzeResponse(inputText);
-                updateBranch(currentBranchId, { characters: analysis.characters });
+                const analysis = await analyzeResponse(inputText, currentBranch.characters);
+                applyCharacterChanges(currentBranchId, analysis);
                 setSelectedCharacters([]);
             } else {
                 const newMessage = { role: 'user', content: inputText };
@@ -63,8 +92,8 @@ function App() {
                 const newMessages = [...updatedMessages, assistantMessage];
                 updateBranch(currentBranchId, { messages: newMessages });
 
-                const analysis = await analyzeResponse(response.response);
-                updateBranch(currentBranchId, { characters: analysis.characters });
+                const analysis = await analyzeResponse(response.response, currentBranch.characters);
+                applyCharacterChanges(currentBranchId, analysis);
                 setSelectedCharacters([]);
             }
         } catch (error) {
@@ -91,7 +120,7 @@ function App() {
             name: newId,
             parentId: currentBranchId,
             messages: [...currentBranch.messages],
-            characters: currentBranch.characters,
+            characters: currentBranch.characters.filter(c => c.active),
         };
         setBranches(prev => [...prev, newBranch]);
         setCurrentBranchId(newId);
@@ -123,7 +152,11 @@ function App() {
             try {
                 const data = JSON.parse(e.target.result);
                 if (data.branches && Array.isArray(data.branches)) {
-                    setBranches(data.branches);
+                    const fixed = data.branches.map(b => ({
+                        ...b,
+                        characters: (b.characters || []).map(c => ({ ...c, active: c.active !== false, id: c.id || generateId() })),
+                    }));
+                    setBranches(fixed);
                     setCurrentBranchId(data.currentBranchId || data.branches[0].id);
                 }
             } catch (err) {
@@ -210,8 +243,8 @@ function App() {
             {currentBranch.characters && currentBranch.characters.length > 0 && (
                 <div className="characters">
                     <h3>Characters in the response:</h3>
-                    {currentBranch.characters.map((character) => (
-                        <div key={character.name} className="character">
+                    {currentBranch.characters.filter(c => c.active).map((character) => (
+                        <div key={character.id} className="character">
                             <label>
                                 <input
                                     type="checkbox"
@@ -223,6 +256,17 @@ function App() {
                         </div>
                     ))}
                     <button onClick={handleCreateBranch} disabled={selectedCharacters.length === 0}>Create Branch</button>
+                </div>
+            )}
+
+            {currentBranch.changes && currentBranch.changes.length > 0 && (
+                <div className="changes">
+                    <h4>Character Changes:</h4>
+                    <ul>
+                        {currentBranch.changes.map((ch, idx) => (
+                            <li key={idx}>{JSON.stringify(ch)}</li>
+                        ))}
+                    </ul>
                 </div>
             )}
 
