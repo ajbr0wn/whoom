@@ -18,7 +18,7 @@ function App() {
     const [selectedCharacters, setSelectedCharacters] = useState([]);
     const [loading, setLoading] = useState(false);
     const [provider, setProvider] = useState(
-        localStorage.getItem('provider') || 'openai'
+        localStorage.getItem('provider') || 'simulated'
     );
     const [apiKey, setApiKey] = useState('');
     const [humanMode, setHumanMode] = useState(false);
@@ -81,7 +81,12 @@ function App() {
     };
 
     const handleSendMessage = async () => {
-        if (!inputText.trim() || loading || (!apiKey && provider !== 'llama')) return;
+        if (
+            !inputText.trim() ||
+            loading ||
+            (!apiKey && provider !== 'llama' && provider !== 'simulated')
+        )
+            return;
 
         setLoading(true);
 
@@ -198,6 +203,7 @@ function App() {
                             value={provider}
                             onChange={(e) => setProvider(e.target.value)}
                         >
+                            <option value="simulated">Simulated</option>
                             <option value="openai">OpenAI</option>
                             <option value="anthropic">Anthropic</option>
                             <option value="gemini">Gemini</option>
@@ -207,8 +213,11 @@ function App() {
                             type="password"
                             value={apiKey}
                             onChange={(e) => setApiKey(e.target.value)}
-                            placeholder={`${provider.charAt(0).toUpperCase() + provider.slice(1)} API key`}
-                            disabled={provider === 'llama'}
+                            placeholder={`${
+                                provider.charAt(0).toUpperCase() +
+                                provider.slice(1)
+                            } API key`}
+                            disabled={provider === 'llama' || provider === 'simulated'}
                         />
                     </div>
                 </header>

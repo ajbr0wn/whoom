@@ -54,6 +54,8 @@ During early development you may not want to contact a real language model. The
 * `llmApi.js` – contains the actual provider logic for OpenAI, Anthropic,
   Gemini and local Llama.
 
-`App.js` currently imports the simulated API. Swap the import to
-`llmApi.js` when you're ready to connect to real LLMs.
+The chat interface defaults to a **Simulated** provider so you can test
+interactions without any API keys. When you're ready to connect to real LLMs
+switch the import in `App.js` to `llmApi.js` and choose one of the real
+providers from the dropdown.
 \nA small Node script `simulate.mjs` demonstrates this mock workflow on the command line. Run `node simulate.mjs` and enter a message to receive a fake response and listed characters.

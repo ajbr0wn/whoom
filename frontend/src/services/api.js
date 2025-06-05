@@ -1,10 +1,11 @@
 
-let provider = localStorage.getItem('provider') || 'openai';
+let provider = localStorage.getItem('provider') || 'simulated';
 const apiKeys = {
     openai: '',
     anthropic: '',
     gemini: '',
     llama: '',
+    simulated: '',
 };
 
 export const setProvider = (p) => {
