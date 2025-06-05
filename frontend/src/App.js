@@ -285,7 +285,14 @@ function App() {
                             placeholder={humanMode ? 'Write assistant reply...' : 'Type your message...'}
                             disabled={loading}
                         />
-                        <button onClick={handleSendMessage} disabled={loading || !inputText.trim() || !apiKey}>
+                        <button
+                            onClick={handleSendMessage}
+                            disabled={
+                                loading ||
+                                !inputText.trim() ||
+                                (!apiKey && provider !== 'llama' && provider !== 'simulated')
+                            }
+                        >
                             {loading ? 'Loading...' : humanMode ? 'Process' : 'Send'}
                         </button>
                     </div>
