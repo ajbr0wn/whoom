@@ -55,7 +55,7 @@ During early development you may not want to contact a real language model. The
   Gemini and local Llama.
 
 The chat interface defaults to a **Simulated** provider so you can test
-interactions without any API keys. When you're ready to connect to real LLMs
-switch the import in `App.js` to `llmApi.js` and choose one of the real
-providers from the dropdown.
+interactions without any API keys. Use the provider dropdown to select a real
+LLM when you're ready to connect. The app automatically routes requests to
+`llmApi.js` for the chosen provider.
 \nA small Node script `simulate.mjs` demonstrates this mock workflow on the command line. Run `node simulate.mjs` and enter a message to receive a fake response and listed characters.

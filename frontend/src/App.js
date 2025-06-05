@@ -4,7 +4,7 @@ import {
     analyzeResponse,
     setApiKey as storeApiKey,
     setProvider as storeProvider,
-} from './services/api'; // swap to ./services/llmApi for real LLM calls
+} from './services';
 import { loadConversation, saveConversation, clearConversation } from './services/storage';
 import { generateId } from './utils/id';
 import './App.css';
