@@ -5,7 +5,7 @@ GitHub Pages only serves static files and cannot host a Python backend. To run t
 ## Client-Only Approach
 
 1. **Static React Frontend** – The `frontend/` project builds to static files that GitHub Pages hosts.
-2. **User Supplied API Key** – When the page loads, the user enters their OpenAI/Anthropic API key. The key is kept in local storage and sent with each request.
+2. **User Supplied API Key** – When the page loads, the user selects an LLM provider (OpenAI, Anthropic, Gemini or a local Llama server) and enters the corresponding API key. The key is kept in local storage and sent with each request.
 3. **LLM Calls From the Browser** – The React app calls the language model APIs directly using the provided key. Both generation and analysis happen client‑side.
 4. **No Server Required** – Because all requests go straight to the LLM provider, no FastAPI service or other backend needs to be running.
 

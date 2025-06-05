@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { generateResponse, analyzeResponse, setApiKey as storeApiKey } from './services/api';
+import {
+    generateResponse,
+    analyzeResponse,
+    setApiKey as storeApiKey,
+    setProvider as storeProvider,
+} from './services/api';
 import { loadConversation, saveConversation, clearConversation } from './services/storage';
 import { generateId } from './utils/id';
 import './App.css';
@@ -12,7 +17,10 @@ function App() {
     const [inputText, setInputText] = useState('');
     const [selectedCharacters, setSelectedCharacters] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [apiKey, setApiKey] = useState(localStorage.getItem('openai_api_key') || '');
+    const [provider, setProvider] = useState(localStorage.getItem('provider') || 'openai');
+    const [apiKey, setApiKey] = useState(
+        localStorage.getItem(`${localStorage.getItem('provider') || 'openai'}_api_key`) || ''
+    );
     const [humanMode, setHumanMode] = useState(false);
 
     const currentBranch = branches.find(b => b.id === currentBranchId) || branches[0];
@@ -30,10 +38,15 @@ function App() {
     }, []);
 
     useEffect(() => {
+        storeProvider(provider);
+        setApiKey(localStorage.getItem(`${provider}_api_key`) || '');
+    }, [provider]);
+
+    useEffect(() => {
         if (apiKey) {
-            storeApiKey(apiKey);
+            storeApiKey(apiKey, provider);
         }
-    }, [apiKey]);
+    }, [apiKey, provider]);
 
     useEffect(() => {
         saveConversation(branches, currentBranchId);
@@ -68,7 +81,7 @@ function App() {
     };
 
     const handleSendMessage = async () => {
-        if (!inputText.trim() || loading || !apiKey) return;
+        if (!inputText.trim() || loading || (!apiKey && provider !== 'llama')) return;
 
         setLoading(true);
 
@@ -189,7 +202,6 @@ function App() {
                         />
                     </div>
                 </header>
-
                 <div className="left-panel">
                     <div className="branches">
                         <h3>Branches</h3>
@@ -292,7 +304,6 @@ function App() {
                         </div>
                     )}
                 </div>
-
                 <footer className="app-footer">
                     <div className="future-placeholder">Additional controls coming soon</div>
                 </footer>
