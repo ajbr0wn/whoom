@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { generateResponse, analyzeResponse, setApiKey as storeApiKey } from './services/api';
+import {
+    generateResponse,
+    analyzeResponse,
+    setApiKey as storeApiKey,
+    setProvider as storeProvider,
+} from './services/api';
 import { loadConversation, saveConversation, clearConversation } from './services/storage';
 import { generateId } from './utils/id';
 import './App.css';
@@ -12,7 +17,10 @@ function App() {
     const [inputText, setInputText] = useState('');
     const [selectedCharacters, setSelectedCharacters] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [apiKey, setApiKey] = useState(localStorage.getItem('openai_api_key') || '');
+    const [provider, setProvider] = useState(localStorage.getItem('provider') || 'openai');
+    const [apiKey, setApiKey] = useState(
+        localStorage.getItem(`${localStorage.getItem('provider') || 'openai'}_api_key`) || ''
+    );
     const [humanMode, setHumanMode] = useState(false);
 
     const currentBranch = branches.find(b => b.id === currentBranchId) || branches[0];
@@ -30,10 +38,15 @@ function App() {
     }, []);
 
     useEffect(() => {
+        storeProvider(provider);
+        setApiKey(localStorage.getItem(`${provider}_api_key`) || '');
+    }, [provider]);
+
+    useEffect(() => {
         if (apiKey) {
-            storeApiKey(apiKey);
+            storeApiKey(apiKey, provider);
         }
-    }, [apiKey]);
+    }, [apiKey, provider]);
 
     useEffect(() => {
         saveConversation(branches, currentBranchId);
@@ -68,7 +81,7 @@ function App() {
     };
 
     const handleSendMessage = async () => {
-        if (!inputText.trim() || loading || !apiKey) return;
+        if (!inputText.trim() || loading || (!apiKey && provider !== 'llama')) return;
 
         setLoading(true);
 
@@ -179,11 +192,17 @@ function App() {
         <div className="App">
             <h1>Character Decomposition Chat</h1>
             <div className="api-key">
+                <select value={provider} onChange={(e) => setProvider(e.target.value)}>
+                    <option value="openai">OpenAI</option>
+                    <option value="anthropic">Anthropic</option>
+                    <option value="gemini">Gemini</option>
+                    <option value="llama">Llama</option>
+                </select>
                 <input
                     type="password"
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    placeholder="OpenAI API key"
+                    placeholder={`${provider} API key`}
                 />
             </div>
 
@@ -280,7 +299,10 @@ function App() {
                     placeholder={humanMode ? 'Write assistant reply...' : 'Type your message...'}
                     disabled={loading}
                 />
-                <button onClick={handleSendMessage} disabled={loading || !inputText.trim() || !apiKey}>
+                <button
+                    onClick={handleSendMessage}
+                    disabled={loading || !inputText.trim() || (!apiKey && provider !== 'llama')}
+                >
                     {loading ? 'Loading...' : humanMode ? 'Process' : 'Send'}
                 </button>
             </div>
